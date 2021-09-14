@@ -18,6 +18,6 @@ app.use(express.json());
 app.use('/api/auth', require('./routes/auth'));
 
 // Listen
-app.listen(process.env.PORT, () => {
-    console.log(`Server is running in ${process.env.PORT}`);
+app.listen(process.env.SERVER_PORT || 8080, () => {
+    console.log(`Server is running in ${process.env.SERVER_PORT || 8080}`);
 });
