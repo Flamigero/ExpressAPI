@@ -47,14 +47,28 @@ const createUser = async(req, res=response) => {
 
 const loginUser = async(req, res=response) => {
     const {email, password} = req.body;
-    const user = {
-        id: 123,
-        name: 'username',
-        email,
-        password
-    }
 
     try {
+        /// Find user
+        let user = await User.findOne({email});
+        if(!user)
+        {
+            return res.status(400).json({
+                ok: false,
+                msg: "The user don't exist"
+            });
+        }
+
+        /// Validate passwords
+        const validPassword = bcrypt.compareSync(password, user.password);
+        if(!validPassword)
+        {
+            return res.status(400).json({
+                ok: false,
+                msg: 'Wrong password'
+            });
+        }
+
         /// Generate JWT
         const token = await generateJWT(user.id, user.name);
 
@@ -75,7 +89,22 @@ const loginUser = async(req, res=response) => {
     }
 };
 
+const revalidateToken = async(req, res=response) => {
+    const uid = req.uid;
+    const name = req.name;
+
+    const token = await generateJWT(uid, name);
+    
+    res.json({
+        ok: true,
+        uid,
+        name,
+        token
+    });
+}
+
 module.exports = {
     loginUser,
-    createUser
+    createUser,
+    revalidateToken
 }
